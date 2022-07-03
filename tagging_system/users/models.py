@@ -10,3 +10,6 @@ class UserLiked(models.Model):
     like_status = models.BooleanField(null=True, blank= True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return self.postId.name if self.postId.name else None 
