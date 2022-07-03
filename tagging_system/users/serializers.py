@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from administrator.models import Image, Post
+from utils.total_likes_dislikes import count_for_each
 from utils.get_tags import tag_list
 
 class PostSerializer(serializers.Serializer):
@@ -14,6 +15,9 @@ class PostSerializer(serializers.Serializer):
         repressentation['id'] = instance.id
         repressentation['caption'] = instance.name        
         repressentation['description'] = instance.description     
+        repressentation['status'] = ""
+        repressentation['likes'] = count_for_each(instance.id, True)
+        repressentation['dislikes'] = count_for_each(instance.id, False)
         repressentation['tags'] = tag_list(instance)
         repressentation['created_at'] = instance.created_at.strftime("%m/%d/%Y, %H:%M")
         images = Image.objects.filter(post = instance.id)
