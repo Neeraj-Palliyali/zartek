@@ -2,14 +2,9 @@ from django.contrib import admin
 
 from .models import Image, Post
 
-
-class PostAdmin(admin.ModelAdmin):
-    model = Post
-    list_display= ('name',)
-
-class ImageAdmin(admin.ModelAdmin):
+class ImageAdmin(admin.TabularInline):
     model = Image
-    list_display= ('post',)
+    list_display= ('post', )
 
     def post (self, obj):
         if obj.post.name:
@@ -17,5 +12,19 @@ class ImageAdmin(admin.ModelAdmin):
         else:
             return None
 
-admin.site.register(Image, ImageAdmin)
+class PostAdmin(admin.ModelAdmin):
+    model = Post
+    list_display = (
+        'name',
+        'tag_list',
+    )
+    inlines = [
+        ImageAdmin,
+    ]
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('tags')
+
+    def tag_list(self, obj):
+        return u", ".join(o.name for o in obj.tags.all())
+        
 admin.site.register(Post, PostAdmin)

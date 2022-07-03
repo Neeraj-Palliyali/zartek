@@ -24,7 +24,9 @@ schema_view = get_swagger_view(title='Swagger API')
 APPEND_SLASH=True  
 
 urlpatterns = [
-    url(r'^$', schema_view), 
+    url(r'docs/', schema_view), 
     path('admin/', admin.site.urls),
-    path('administrator/', include('administrator.urls'))
+    path('administrator/', include('administrator.urls')),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('users/', include('users.urls'))
 ]
