@@ -6,8 +6,10 @@ from rest_framework.permissions import IsAuthenticated
 
 from administrator.models import Post
 from utils.pagination import PostPagination
-from users.serializers import PostLikeSerializer, PostSerializer
+
+from .serializers import PostLikeSerializer, PostSerializer
 from .models import UserLiked
+
 # Create your views here.
 class UserPostsViewSet(viewsets.ModelViewSet):
     serializer_class= PostSerializer 
@@ -53,35 +55,33 @@ class UserPostsViewSet(viewsets.ModelViewSet):
 
 
     def list(self, request, *args, **kwargs):
-        # user_id = request.user.id
-        # liked = UserLiked.objects.filter(user_id = user_id,)
-        # if liked:
-        #     tags = []
-        #     for like in liked:
-        #         tags 
-        #     return Response(
-        #     {
-        #         "success":True,
-        #         "message": "hehe"
-        #     },
-        #     status= status.HTTP_200_OK
-        # )
         user_id = request.user
         viewed = UserLiked.objects.filter(user = user_id).values_list('postId', flat= True)
-        if not viewed:
+        try:
+            liked = UserLiked.objects.get(user = user_id, like_status = True).values_list('postId', flat= True)
+        except Exception :
+            liked = None
+
+        if not viewed :
             posts = Post.objects.all()
-            print("here")
+        elif liked:
+            # TODO TEST HERER
+            posts = liked[0].tags.similar_objects()
+            if not posts:
+                posts = Post.objects.all()
+        
         else:
             viewed = list(viewed)
             print(viewed)
-            posts = Post.objects.filter(~Q(pk__in = viewed))
+            posts = Post.objects.filter(~Q(pk__in = viewed)).order_by('-created_at')
             print(posts)
+        
+        
         if posts:
-            page = self.paginate_queryset(posts)
+            page = self.paginate_queryset(posts.order_by('created_at'))
             if page is not None:
                 serializer = self.serializer_class(page, many = True).data
                 for post in serializer:
-                    print(posts.filter(id= post.get('id')))
                     UserLiked.objects.create(
                     user = user_id,
                     postId = posts.get(id= post.get('id')),

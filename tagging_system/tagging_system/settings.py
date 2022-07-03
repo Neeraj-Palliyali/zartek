@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -86,35 +87,14 @@ WSGI_APPLICATION = 'tagging_system.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-       'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'zartek',
-            'USER': 'postgres',
-            'PASSWORD': 'ironman789',
-            'HOST': 'localhost',
-            'PORT': '5432',
-       }
-   }
+DATABASES = config.DATABASES
 
-REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ],
-}
+REST_FRAMEWORK = config.REST_FRAMEWORK
 
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'basic': {
-            'type': 'basic'
-        }
-    },
-}
-
-LOGIN_URL = 'rest_framework:login'
-LOGOUT_URL = 'rest_framework:logout'
+# Swagger
+SWAGGER_SETTINGS = config.SWAGGER_SETTINGS
+LOGIN_URL = config.LOGIN_URL
+LOGOUT_URL = config.LOGOUT_URL
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 

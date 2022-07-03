@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from administrator.models import Post
+from administrator.models import Image, Post
 from utils.get_tags import tag_list
 
 class PostSerializer(serializers.Serializer):
@@ -16,6 +16,8 @@ class PostSerializer(serializers.Serializer):
         repressentation['description'] = instance.description     
         repressentation['tags'] = tag_list(instance)
         repressentation['created_at'] = instance.created_at.strftime("%m/%d/%Y, %H:%M")
+        images = Image.objects.filter(post = instance.id)
+        repressentation['images'] = [str(image.image.url) for image in images]
         return repressentation
 
 
