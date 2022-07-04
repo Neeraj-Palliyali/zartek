@@ -1,6 +1,8 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 
 from administrator.models import Image, Post
+from users.models import UserLiked
 from utils.total_likes_dislikes import count_for_each
 from utils.get_tags import tag_list
 
@@ -34,3 +36,14 @@ class PostLikeSerializer(serializers.Serializer):
         if not Post.objects.filter(id = attrs['post_id']):
             raise serializers.ValidationError("The post you are trying to like does not exist")
         return super().validate(attrs)
+
+class InteractedUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserLiked
+        fields = ('user',)
+
+    def to_representation(self, instance):
+        representation =  super().to_representation(instance)
+        representation['names']= instance.user.username
+        representation.pop('user')
+        return representation

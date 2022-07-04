@@ -2,12 +2,13 @@ from django.db.models import Q
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
 from administrator.models import Post
 from utils.pagination import PostPagination
 
-from .serializers import PostLikeSerializer, PostSerializer
+from .serializers import InteractedUserSerializer, PostLikeSerializer, PostSerializer
 from .models import UserLiked
 
 # Create your views here.
@@ -102,3 +103,17 @@ class UserPostsViewSet(viewsets.ModelViewSet):
                     },
                     status= status.HTTP_200_OK
                 )
+    @action(detail=False, url_path="interacted_names", methods=["POST"])
+    def interacted_names(self, request, *args, **kwargs):
+        serializer = PostLikeSerializer(data = request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.data
+        users = UserLiked.objects.filter(postId = data['post_id'], like_status = data['status'] ).prefetch_related('user')
+        serializer = InteractedUserSerializer(users, many = True)
+        return Response(
+            {
+                "Success":True,
+                "data": serializer.data,
+            }
+        )
+

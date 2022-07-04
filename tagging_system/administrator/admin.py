@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from utils.total_likes_dislikes import count_for_each
+
 from .models import Image, Post
 
 class ImageAdmin(admin.TabularInline):
@@ -17,6 +19,7 @@ class PostAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'tag_list',
+        'likes'
     )
     inlines = [
         ImageAdmin,
@@ -26,5 +29,8 @@ class PostAdmin(admin.ModelAdmin):
 
     def tag_list(self, obj):
         return u", ".join(o.name for o in obj.tags.all())
+
+    def likes(self, obj):
+        return count_for_each(obj, True)
         
 admin.site.register(Post, PostAdmin)
